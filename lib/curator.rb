@@ -1,3 +1,4 @@
+require 'csv'
 class Curator
 
   attr_reader :photographs, :artists
@@ -37,6 +38,34 @@ class Curator
 
   def photograph_artist_country(photograph)
     @artists.find { |artist| artist.id == photograph.artist_id }.country
+  end
+
+  def load_photographs(file)
+    CSV.foreach(file, headers: :true, header_converters: :symbol) do |csv_row|
+      @photographs << Photograph.new(csv_row)
+    end
+  end
+
+  def load_artists(file)
+    CSV.foreach(file, headers: :true, header_converters: :symbol) do |csv_row|
+      @artists << Artist.new(csv_row)
+    end
+  end
+
+  def photographs_taken_between(year_range)
+    @photographs.find_all do |photograph|
+      year_range.include?(photograph.year.to_i)
+    end
+  end
+
+  def artists_photograhps_by_age(artist)
+    photos_by_age = Hash.new()
+    find_photographs_by_artist(artist).each do |photo|
+      age = photo.year.to_i - artist.born.to_i
+      photo_name = photo.name
+      photos_by_age[age] = photo_name
+    end
+    photos_by_age
   end
 
 end

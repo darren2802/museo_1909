@@ -32,6 +32,12 @@ class TestCurator < Minitest::Test
          artist_id: "3",
          year: "1927"
     })
+    @photo_5 = Photograph.new({
+         id: "4",
+         name: "Child with Toy Hand Grenade in Central Park",
+         artist_id: "3",
+         year: "1962"
+    })
     @artist_1 = Artist.new({
         id: "1",
         name: "Henri Cartier-Bresson",
@@ -51,6 +57,27 @@ class TestCurator < Minitest::Test
      name: "Diane Arbus",
      born: "1923",
      died: "1971",
+     country: "United States"
+    })
+    @artist_4 = Artist.new({
+     id: "4",
+     name: "Walker Evans",
+     born: "1903",
+     died: "1975",
+     country: "United States"
+    })
+    @artist_5 = Artist.new({
+     id: "5",
+     name: "Manuel Alvarez Bravo",
+     born: "1902",
+     died: "2002",
+     country: "Mexico"
+    })
+    @artist_6 = Artist.new({
+     id: "6",
+     name: "Bill Cunningham",
+     born: "1929",
+     died: "2016",
      country: "United States"
     })
   end
@@ -126,4 +153,35 @@ class TestCurator < Minitest::Test
     assert_equal [@photo_2, @photo_3, @photo_4], @curator.photographs_taken_by_artist_from('United States')
     assert_equal [], @curator.photographs_taken_by_artist_from("Argentina")
   end
+
+  def test_load_csv_photographs
+    skip
+    assert_equal [], @curator.photographs
+    @curator.load_photographs('./data/photographs.csv')
+    assert_equal [@photo_1, @photo_2, @photo_3, @photo_5], @curator.photographs
+  end
+
+  def test_load_csv_artists
+    skip
+    assert_equal [], @curator.artists
+    @curator.load_artists('./data/artists.csv')
+    assert_equal [@artist_1, @artist_2, @artist_3, @artist_4, @artist_5, @artist_6], @curator.artists
+  end
+
+  def test_curator_photographs_taken_between
+    @curator.add_photograph(@photo_1)
+    @curator.add_photograph(@photo_2)
+    @curator.add_photograph(@photo_3)
+    @curator.add_photograph(@photo_4)
+    assert_equal [@photo_1], @curator.photographs_taken_between(1950..1965)
+  end
+
+  def test_curator_artists_photographs_by_age
+    @curator.load_photographs('./data/photographs.csv')
+    @curator.load_artists('./data/artists.csv')
+    diane_arbus = @curator.find_artist_by_id("3")
+    photos_by_age = {44=>"Identical Twins, Roselle, New Jersey", 39=>"Child with Toy Hand Grenade in Central Park"}
+    assert_equal photos_by_age, @curator.artists_photograhps_by_age(diane_arbus)
+  end
+
 end
